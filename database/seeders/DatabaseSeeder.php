@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([RoleSeeder::class, DirectionSeeder::class, ExerciceSeeder::class]);
+        $this->call([RoleSeeder::class, DirectionSeeder::class, ExerciceSeeder::class, WorkflowCircuitSeeder::class]);
 
         $admin = User::firstOrCreate(['email' => config('sigpro.admin.email')], [
             'name' => 'Administrateur SIGPRO',
@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
 
         if (app()->environment('local')) {
             $this->seedDemoUsers();
+            $this->call(DemoActivitySeeder::class);
         }
     }
 

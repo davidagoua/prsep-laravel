@@ -166,15 +166,15 @@ new #[Title('Utilisateurs')] class extends Component {
         <flux:button variant="primary" icon="plus" wire:click="create">Nouvel utilisateur</flux:button>
     </div>
 
-    <div class="flex flex-wrap gap-3">
-        <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" placeholder="Rechercher un nom ou un e-mail" class="max-w-xs" clearable />
-        <flux:select wire:model.live="role" class="max-w-52">
+    <div class="grid gap-3 sm:flex sm:flex-wrap">
+        <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" placeholder="Rechercher un nom ou un e-mail" class="sm:max-w-xs" clearable />
+        <flux:select wire:model.live="role" class="sm:max-w-52">
             <flux:select.option value="">Tous les rôles</flux:select.option>
             @foreach (Role::options() as $value => $label)
                 <flux:select.option :value="$value">{{ $label }}</flux:select.option>
             @endforeach
         </flux:select>
-        <flux:select wire:model.live="direction" class="max-w-52">
+        <flux:select wire:model.live="direction" class="sm:max-w-52">
             <flux:select.option value="">Toutes les directions</flux:select.option>
             @foreach ($this->directions as $dir)
                 <flux:select.option :value="$dir->id">{{ $dir->code }}</flux:select.option>

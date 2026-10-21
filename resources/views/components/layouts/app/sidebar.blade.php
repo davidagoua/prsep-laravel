@@ -3,13 +3,16 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky stashable class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+    <body class="min-h-screen bg-zinc-50 dark:bg-zinc-900">
+        <flux:sidebar sticky stashable class="sidebar-prseb dark border-e text-white">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <a href="{{ route('dashboard') }}" class="me-5 flex items-center gap-2" wire:navigate>
-                <x-app-logo />
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('dashboard') }}" class="flex min-w-0 flex-1 items-center gap-2" wire:navigate>
+                    <x-app-logo />
+                </a>
+                <livewire:notifications.bell />
+            </div>
 
             {{-- Exercice de travail : filtre toutes les données de l'application --}}
             <form method="POST" action="{{ route('exercice.switch') }}" data-test="exercice-switcher">
@@ -38,6 +41,7 @@
                                 </flux:navlist.item>
                             @else
                                 <flux:navlist.item :icon="$item['icon']" :href="route($item['route'])"
+                                    :badge="$item['badge'] ?: null" badge-color="orange"
                                     :current="request()->routeIs($item['active'])" wire:navigate>
                                     {{ $item['label'] }}
                                 </flux:navlist.item>

@@ -3,6 +3,7 @@
 use App\Models\Direction;
 use App\Models\User;
 use App\Support\CurrentExercice;
+use App\Support\Inbox;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
 use Livewire\Volt\Component;
@@ -12,6 +13,12 @@ new #[Title('Accueil')] class extends Component {
     public function exercice()
     {
         return app(CurrentExercice::class)->get();
+    }
+
+    #[Computed]
+    public function inbox(): array
+    {
+        return app(Inbox::class)->sections(auth()->user());
     }
 
     /** Avancement de l'exercice dans le temps, en pourcentage. */
@@ -114,19 +121,20 @@ new #[Title('Accueil')] class extends Component {
         </flux:card>
 
         {{-- À traiter --}}
-        <flux:card class="lg:col-span-2">
-            <div class="flex items-center justify-between">
-                <flux:heading size="lg">À traiter</flux:heading>
-                <flux:badge size="sm" color="zinc">Lot 2</flux:badge>
-            </div>
-            <div class="mt-6 flex flex-col items-center gap-2 py-6 text-center">
-                <flux:icon.inbox-stack class="size-10 text-zinc-300 dark:text-zinc-600" />
-                <flux:text>Rien à traiter pour le moment.</flux:text>
-                <flux:text size="sm" class="max-w-md">
-                    Vos TDR à corriger ou à valider, les rapports attendus et les activités à démarrer apparaîtront ici.
-                </flux:text>
-            </div>
-        </flux:card>
+        <div class="space-y-4 lg:col-span-2">
+            @forelse (array_slice($this->inbox, 0, 2) as $section)
+                <x-inbox.section :section="$section" :limit="4" />
+            @empty
+                <flux:card class="flex h-full flex-col items-center justify-center gap-2 py-10 text-center">
+                    <flux:icon.check-badge class="size-10 text-prseb-green-600" />
+                    <flux:heading>Rien à traiter</flux:heading>
+                    <flux:text size="sm" class="max-w-md">Les TDR à valider ou à corriger et les activités à préparer apparaîtront ici.</flux:text>
+                </flux:card>
+            @endforelse
+            @if (count($this->inbox) > 2)
+                <flux:button :href="route('inbox')" wire:navigate variant="ghost" icon-trailing="arrow-right" class="w-full">Tout ce qui est à traiter</flux:button>
+            @endif
+        </div>
     </div>
 
     @if (auth()->user()->isAdmin())

@@ -1,7 +1,7 @@
-<div class="flex aspect-square size-8 items-center justify-center rounded-md bg-accent text-accent-foreground">
-    <x-app-logo-icon class="size-5" />
-</div>
+<span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white p-0.5">
+    <img src="/images/logo-icon.png" alt="" class="size-full object-contain">
+</span>
 <div class="ms-1 grid flex-1 text-start text-sm">
-    <span class="truncate leading-tight font-semibold">SIGPRO</span>
-    <span class="truncate text-xs leading-tight text-zinc-500 dark:text-zinc-400">Suivi du PRSEP</span>
+    <span class="truncate leading-tight font-semibold text-white">SIGPRO</span>
+    <span class="truncate text-xs leading-tight text-prseb-navy-200">Suivi du PRSEP</span>
 </div>

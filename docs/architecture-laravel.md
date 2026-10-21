@@ -23,9 +23,9 @@
 | Interface | **Livewire 3 + Flux UI + Tailwind** | Écrans riches (tableaux arborescents, modales, filtres) sans maintenir une API ni un front JS séparé. Proche du modèle Django « rendu serveur » |
 | Base | **PostgreSQL + PostGIS** (conservés) | Cartographie, reprise des données existantes |
 | Rôles et droits | `spatie/laravel-permission` | Rôles, permissions, contrôles dans les policies |
-| Machine à états | `spatie/laravel-model-states` | États typés, transitions déclarées et testables |
+| Machine à états | Enum `TdrState` + service `TdrWorkflow` (lot 2) | Les étapes étant stockées en base, un service explicite est plus lisible qu'un paquet d'états |
 | Historique | `spatie/laravel-activitylog` + table de transitions métier | Audit et timeline visible |
-| Fichiers | `spatie/laravel-medialibrary` | Versions des TDR et des rapports, conversions |
+| Fichiers | Table `tdr_documents` (lot 2), disque privé | Versions des TDR sans dépendance supplémentaire |
 | Excel | `maatwebsite/excel` | Import du PTBA avec prévisualisation, exports |
 | Temps réel | **Laravel Reverb** (remplace Channels + Soketi) | Badges et notifications en direct, natif Laravel |
 | Carte | Leaflet + `clickbar/laravel-magellan` (PostGIS) | Intègre le module PHP séparé |

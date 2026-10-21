@@ -9,8 +9,27 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
+    /* Charte PRSEB (logo du projet Django) : bleu marine, vert, orange. */
+    --color-prseb-navy-50: #eef4f9;
+    --color-prseb-navy-100: #d5e3ef;
+    --color-prseb-navy-200: #abc7df;
+    --color-prseb-navy-300: #729bbf;
+    --color-prseb-navy-500: #2b6a99;
+    --color-prseb-navy-600: #1b5680;
+    --color-prseb-navy-700: #164668;
+    --color-prseb-navy-800: #123a56;
+    --color-prseb-navy-900: #0e2c42;
+    --color-prseb-navy-950: #0a2032;
+    --color-prseb-green-50: #e9f6ed;
+    --color-prseb-green-500: #18a33f;
+    --color-prseb-green-600: #0d8a2e;
+    --color-prseb-green-700: #0a6e25;
+    --color-prseb-orange-50: #fdf3e6;
+    --color-prseb-orange-400: #f49b2e;
+    --color-prseb-orange-500: #e88a10;
+    --color-prseb-orange-600: #c4720a;
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -24,16 +43,16 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-emerald-700);
-    --color-accent-content: var(--color-emerald-700);
+    --color-accent: var(--color-prseb-navy-600);
+    --color-accent-content: var(--color-prseb-navy-600);
     --color-accent-foreground: var(--color-white);
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-emerald-500);
-        --color-accent-content: var(--color-emerald-400);
-        --color-accent-foreground: var(--color-white);
+        --color-accent: var(--color-prseb-navy-300);
+        --color-accent-content: var(--color-prseb-navy-300);
+        --color-accent-foreground: var(--color-prseb-navy-950);
     }
 }
 
@@ -66,3 +85,14 @@ select:focus[data-flux-control] {
     @apply size-4;
 } */
 
+/* Barre latérale sombre (comme l'application Django), avec repère orange sur l'entrée active. */
+.sidebar-prseb {
+    background-color: var(--color-prseb-navy-900);
+    border-color: var(--color-prseb-navy-800);
+}
+
+.sidebar-prseb [data-flux-navlist-item][data-current] {
+    background-color: rgb(255 255 255 / 0.1);
+    box-shadow: inset 3px 0 0 var(--color-prseb-orange-500);
+    color: white;
+}

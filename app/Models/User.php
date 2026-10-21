@@ -77,6 +77,12 @@ class User extends Authenticatable // implements MustVerifyEmail
         return $this->hasAnyRole(array_map(fn (Role $role) => $role->value, $roles));
     }
 
+    /** Rôles transverses : voient les activités de toutes les directions. */
+    public function seesAllDirections(): bool
+    {
+        return $this->hasAppRole(Role::Coordination, Role::DirecteurExecutif, Role::Lecteur, Role::Admin);
+    }
+
     public function isAdmin(): bool
     {
         return $this->hasAppRole(Role::Admin);
@@ -102,7 +108,8 @@ class User extends Authenticatable // implements MustVerifyEmail
     {
         return Str::of($this->name)
             ->explode(' ')
-            ->map(fn (string $name) => Str::of($name)->substr(0, 1))
+            ->filter(fn (string $word) => preg_match('/^\pL/u', $word))
+            ->map(fn (string $name) => Str::of($name)->substr(0, 1)->upper())
             ->take(2)
             ->implode('');
     }
