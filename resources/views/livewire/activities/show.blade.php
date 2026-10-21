@@ -29,15 +29,32 @@ new class extends Component {
     #[Computed]
     public function details(): array
     {
-        $a = $this->activity->loadMissing(['direction', 'exercice', 'focalUser']);
+        $a = $this->activity->loadMissing(['direction', 'exercice', 'focalUser', 'category', 'ugp', 'fundingSource']);
 
-        return [
+        return array_filter([
             'Direction' => $a->direction ? $a->direction->code.($a->direction->name !== $a->direction->code ? ' — '.$a->direction->name : '') : '—',
             'Exercice' => $a->exercice->label,
-            'Période' => $a->starts_on ? $a->starts_on->translatedFormat('j M Y').' → '.($a->ends_on?->translatedFormat('j M Y') ?? '…') : '—',
-            'Point focal' => $a->focalUser?->name ?? '—',
-        ];
+            'Période' => $a->starts_on ? $a->starts_on->translatedFormat('j M Y').' → '.($a->ends_on?->translatedFormat('j M Y') ?? '…') : null,
+            'Point focal' => $a->focalUser?->name,
+            'Catégorie de dépense' => $a->category?->label,
+            'Type d\'activité' => $a->activity_type,
+            'Localisation' => $a->localisation,
+            'Partenaire' => $a->partner,
+            'Source de financement' => $a->fundingSource?->label,
+            'Suivi UGP' => $a->ugp?->label,
+            'Procédure d\'acquisition' => $a->procurement_method,
+            'ILD en lien' => $a->ild_reference,
+            'Références DPPD' => collect([$a->ddp_programme, $a->ddp_action, $a->ddp_activite, $a->ddp_ligne])->filter()->implode(' · ') ?: null,
+            'PPM' => $a->ppm_ref,
+        ], fn ($v) => $v !== null && $v !== '');
     }
+
+    #[Computed]
+    public function hierarchy(): array
+    {
+        return $this->activity->loadMissing('parent')->hierarchy();
+    }
+
 }; ?>
 
 <div class="flex flex-col gap-6">
@@ -47,6 +64,20 @@ new class extends Component {
             <flux:breadcrumbs.item>{{ $activity->code ?? 'Activité' }}</flux:breadcrumbs.item>
         </flux:breadcrumbs>
 
+        @if ($this->hierarchy)
+            <ol class="mb-2 flex flex-wrap items-center gap-x-1 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+                @foreach ($this->hierarchy as $level)
+                    <li class="flex items-center gap-1" title="{{ $level['level'] }} : {{ $level['label'] }}">
+                        @if (! $loop->first) <flux:icon.chevron-right variant="micro" class="text-zinc-300" /> @endif
+                        <span class="font-medium">{{ $level['code'] }}</span>
+                        <span class="max-w-56 truncate">{{ $level['label'] }}</span>
+                    </li>
+                @endforeach
+            </ol>
+        @endif
+        @if ($activity->parentActivity)
+            <div class="mb-2 text-sm">Sous-activité de <a href="{{ route('activities.show', $activity->parentActivity) }}" wire:navigate class="text-prseb-navy-600 hover:underline dark:text-prseb-navy-300">{{ $activity->parentActivity->code }} {{ \Illuminate\Support\Str::limit($activity->parentActivity->label, 80) }}</a></div>
+        @endif
         <div class="flex flex-wrap items-center gap-2">
             <flux:badge size="sm" :color="$activity->volet->color()" variant="outline">{{ $activity->volet->label() }}</flux:badge>
             <flux:badge size="sm" :color="$activity->execution_status->color()">{{ $activity->execution_status->label() }}</flux:badge>
@@ -55,8 +86,9 @@ new class extends Component {
     </div>
 
     <div class="grid gap-6 xl:grid-cols-[1fr_320px]">
-        <div class="min-w-0">
+        <div class="min-w-0 space-y-6">
             <livewire:tdr.panel :activity-id="$activity->id" :key="'tdr-'.$activity->id" />
+            <livewire:activities.budget :activity-id="$activity->id" :key="'budget-'.$activity->id" />
         </div>
 
         <aside class="space-y-4">
@@ -75,7 +107,22 @@ new class extends Component {
                 @endif
             </flux:card>
 
-            @foreach ([['Budget et décaissements', 'banknotes', 1], ['Localités d\'exécution', 'map-pin', 5], ['Rapports', 'document-chart-bar', 4]] as [$title, $icon, $lot])
+            @if ($activity->schedule_months)
+                <flux:card class="space-y-3">
+                    <flux:heading>Chronogramme</flux:heading>
+                    <div class="grid grid-cols-6 gap-1 text-center text-xs">
+                        @foreach (['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'] as $i => $m)
+                            <span @class([
+                                'rounded py-1',
+                                'bg-prseb-navy-600 font-semibold text-white' => in_array($i + 1, $activity->schedule_months),
+                                'bg-zinc-100 text-zinc-400 dark:bg-zinc-700' => ! in_array($i + 1, $activity->schedule_months),
+                            ]) title="{{ ucfirst(now()->setDate(2000, $i + 1, 1)->translatedFormat('F')) }}">{{ $m }}</span>
+                        @endforeach
+                    </div>
+                </flux:card>
+            @endif
+
+            @foreach ([['Engagements et paiements', 'banknotes', 3], ['Localités d\'exécution', 'map-pin', 5], ['Rapports', 'document-chart-bar', 4]] as [$title, $icon, $lot])
                 <div class="flex items-center gap-3 rounded-lg border border-dashed border-zinc-300 px-4 py-3 text-sm text-zinc-500 dark:border-zinc-600 dark:text-zinc-400">
                     <flux:icon :icon="$icon" class="size-5" />
                     <span class="flex-1">{{ $title }}</span>

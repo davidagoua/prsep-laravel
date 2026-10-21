@@ -114,13 +114,22 @@ new #[Title('Activités')] class extends Component {
             <flux:heading size="xl" level="1">Activités</flux:heading>
             <flux:text class="mt-1">
                 Activités de l'exercice en cours{{ auth()->user()->seesAllDirections() ? '' : ' pour votre direction' }}.
-                La hiérarchie du PTBA, le budget et l'import Excel arrivent au lot 1.
             </flux:text>
         </div>
-        @can('create', App\Models\Activity::class)
-            <flux:button variant="primary" icon="plus" wire:click="create">Nouvelle activité</flux:button>
-        @endcan
+        <div class="flex flex-wrap gap-2">
+            @can('import-ptba')
+                <flux:button icon="arrow-up-tray" :href="route('ptba.import')" wire:navigate>Importer le PTBA</flux:button>
+            @endcan
+            @can('create', App\Models\Activity::class)
+                <flux:button variant="primary" icon="plus" wire:click="create">Nouvelle activité</flux:button>
+            @endcan
+        </div>
     </div>
+
+    <flux:radio.group variant="segmented" size="sm" class="self-start">
+        <flux:radio value="liste" label="Liste" checked />
+        <flux:radio value="arbre" label="Arborescence" x-on:click="Livewire.navigate('{{ route('activities.tree') }}')" />
+    </flux:radio.group>
 
     <div class="grid gap-3 sm:flex sm:flex-wrap">
         <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" placeholder="Rechercher un code ou un libellé" class="sm:max-w-xs" clearable />
@@ -192,7 +201,7 @@ new #[Title('Activités')] class extends Component {
     <flux:modal name="activity-form" class="w-full max-w-lg">
         <form wire:submit="save" class="space-y-5">
             <flux:heading size="lg">Nouvelle activité</flux:heading>
-            <flux:text size="sm">Saisie ponctuelle. Les activités du PTBA seront importées depuis Excel au lot 1.</flux:text>
+            <flux:text size="sm">Saisie ponctuelle, hors PTBA importé. Pour le PTBA complet, utilisez l'import Excel.</flux:text>
             <flux:textarea wire:model="label" label="Libellé" rows="2" required />
             <div class="grid gap-4 sm:grid-cols-2">
                 <flux:input wire:model="code" label="Code" placeholder="A1.1.01" />

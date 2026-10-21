@@ -56,6 +56,7 @@ class Navigation
                     self::item('Directions', 'building-office-2', [Role::Admin], route: 'admin.directions', active: 'admin.directions*'),
                     self::item('Exercices', 'calendar-days', [Role::Admin], route: 'admin.exercices', active: 'admin.exercices*'),
                     self::item('Circuits de validation', 'arrows-right-left', [Role::Admin], route: 'admin.circuits', active: 'admin.circuits*'),
+                    self::item('Import du PTBA', 'arrow-up-tray', [Role::Admin], route: 'ptba.import', active: 'ptba.*'),
                 ],
             ],
         ];

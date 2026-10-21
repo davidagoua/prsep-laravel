@@ -180,7 +180,9 @@ new class extends Component {
             <flux:card class="flex flex-col items-center gap-2 py-10 text-center">
                 <flux:icon.document-text class="size-10 text-zinc-300 dark:text-zinc-600" />
                 <flux:heading>Aucun TDR déposé</flux:heading>
-                <flux:text class="max-w-sm">Le point focal de la direction {{ $this->activity->direction?->code }} dépose le TDR depuis cette page.</flux:text>
+                <flux:text class="max-w-sm">
+                    {{ $this->activity->direction ? 'Le point focal de la direction '.$this->activity->direction->code.' dépose le TDR depuis cette page.' : 'Rattachez d\'abord l\'activité à une direction : son point focal pourra alors déposer le TDR.' }}
+                </flux:text>
             </flux:card>
         @endcan
     @else

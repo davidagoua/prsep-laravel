@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PtbaFileController;
 use App\Http\Controllers\SwitchExerciceController;
 use App\Http\Controllers\TdrDocumentController;
 use Illuminate\Support\Facades\Route;
@@ -17,6 +18,11 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('activites/{activity}', 'activities.show')->name('activities.show');
     Volt::route('validations', 'validations')->name('validations');
     Route::get('tdr/documents/{document}', TdrDocumentController::class)->name('tdr-documents.show');
+
+    Volt::route('activites-arborescence', 'activities.tree')->name('activities.tree');
+    Volt::route('ptba/import', 'ptba.import')->middleware('can:import-ptba')->name('ptba.import');
+    Route::get('ptba/modele/{volet}', [PtbaFileController::class, 'template'])->name('ptba.template');
+    Route::get('ptba/import/{import}/anomalies', [PtbaFileController::class, 'report'])->name('ptba.report');
 
     Route::redirect('settings', 'settings/profile');
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');

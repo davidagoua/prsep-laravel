@@ -7,6 +7,13 @@ use App\Enums\Volet;
 use App\Models\Activity;
 use App\Models\Direction;
 use App\Models\Exercice;
+use App\Models\ProgrammeAction;
+use App\Models\ProgrammeComponent;
+use App\Models\ProjectComponent;
+use App\Models\ProjectIndicator;
+use App\Models\ProjectSubcomponent;
+use App\Models\ResultDomain;
+use App\Models\ResultSubdomain;
 use App\Models\User;
 use App\Workflow\TdrWorkflow;
 use Illuminate\Database\Seeder;
@@ -38,16 +45,38 @@ class DemoActivitySeeder extends Seeder
             return;
         }
 
-        $activities = collect(self::ACTIVITIES)->map(fn (array $row) => Activity::create([
-            'direction_id' => Direction::where('code', $row[0])->value('id'),
-            'volet' => $row[1],
-            'code' => $row[2],
-            'label' => $row[3],
-            'exercice_id' => $exercice->id,
-            'focal_user_id' => $row[0] === 'DSPA' ? $focal->id : null,
-            'starts_on' => now()->startOfMonth()->addMonths(rand(0, 2)),
-            'ends_on' => now()->addMonths(rand(3, 6))->endOfMonth(),
-        ]));
+        // Hiérarchie minimale pour l'arborescence (le PTBA réel s'importe depuis Excel).
+        $component = ProjectComponent::firstOrCreate(['code' => 'C1'], ['label' => 'Assistance technique']);
+        $sub = ProjectSubcomponent::firstOrCreate(['code' => 'C1.1'], ['component_id' => $component->id, 'label' => 'Appuis techniques aux structures du MENA']);
+        $ild = ProjectIndicator::firstOrCreate(['code' => 'ILD 3'], ['subcomponent_id' => $sub->id, 'type' => ProjectIndicator::ILD, 'label' => 'Acquis scolaires des élèves']);
+        $horsIld = ProjectIndicator::firstOrCreate(['code' => 'HI 1'], ['subcomponent_id' => $sub->id, 'type' => ProjectIndicator::HORS_ILD, 'label' => 'Gestion du projet']);
+        $domain = ResultDomain::firstOrCreate(['code' => '3'], ['label' => 'Renforcer la capacité de gestion']);
+        $subdomain = ResultSubdomain::firstOrCreate(['code' => '3.2'], ['domain_id' => $domain->id, 'label' => 'Pilotage du secteur']);
+        $pc = ProgrammeComponent::firstOrCreate(['code' => '3.2-C1'], ['subdomain_id' => $subdomain->id, 'label' => 'Planification et suivi']);
+        $action = ProgrammeAction::firstOrCreate(['code' => '3.2-A1.1'], ['component_id' => $pc->id, 'label' => 'Assurer le pilotage du programme']);
+
+        $activities = collect(self::ACTIVITIES)->map(function (array $row, int $i) use ($exercice, $focal, $ild, $horsIld, $action) {
+            $parent = $row[1] === Volet::Programme ? $action : ($row[0] === 'DAF' ? $horsIld : $ild);
+            $activity = Activity::create([
+                'direction_id' => Direction::where('code', $row[0])->value('id'),
+                'volet' => $row[1],
+                'code' => $row[2],
+                'import_key' => $row[1]->value.':'.$row[2],
+                'label' => $row[3],
+                'exercice_id' => $exercice->id,
+                'parent_type' => $parent::class,
+                'parent_id' => $parent->id,
+                'focal_user_id' => $row[0] === 'DSPA' ? $focal->id : null,
+                'starts_on' => now()->startOfMonth()->addMonths(rand(0, 2)),
+                'ends_on' => now()->addMonths(rand(3, 6))->endOfMonth(),
+                'schedule_months' => [now()->month, min(12, now()->month + 1)],
+                'position' => $i,
+            ]);
+            $activity->budgetLines()->create(['exercice_id' => $exercice->id, 'label' => 'Perdiem des participants', 'quantity' => 20 + $i * 5, 'frequency' => 1, 'duration' => 3, 'unit_cost' => 25000]);
+            $activity->budgetLines()->create(['exercice_id' => $exercice->id, 'label' => 'Logistique', 'quantity' => 1, 'frequency' => 1, 'duration' => 1, 'unit_cost' => 1_500_000 + $i * 250_000]);
+
+            return $activity;
+        });
 
         // Quelques dossiers à différents stades, sans envoyer d'e-mails.
         Notification::fake();

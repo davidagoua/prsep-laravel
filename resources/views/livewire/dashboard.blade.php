@@ -64,6 +64,12 @@ new #[Title('Accueil')] class extends Component {
                 'hint' => 'Toutes les données sont rattachées à un exercice.',
             ],
             [
+                'label' => 'Importer le PTBA de l\'exercice',
+                'done' => $this->exercice !== null && \App\Models\Activity::where('exercice_id', $this->exercice->id)->whereNotNull('parent_id')->exists(),
+                'route' => 'ptba.import',
+                'hint' => 'Modèle SIGPRO ou fichiers PTBA historiques (projet et programme).',
+            ],
+            [
                 'label' => 'Compléter les intitulés des directions',
                 'done' => $directionsSansIntitule === 0,
                 'route' => 'admin.directions',

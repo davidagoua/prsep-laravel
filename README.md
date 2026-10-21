@@ -60,3 +60,14 @@ php artisan test
 - **Écrans** : Activités (socle minimal, enrichi au lot 1), fiche activité, À traiter, Validations (file + revue, passage automatique au dossier suivant).
 - **Notifications** : en base (cloche), par e-mail (Mailpit en local) et en temps réel (Reverb). Le worker `queue` doit tourner.
 - **Charte** : couleurs et logo du projet Django (bleu marine, vert, orange PRSEB, police Montserrat, barre latérale sombre).
+
+## Lot 1 — PTBA : hiérarchies, budget, import Excel
+
+- **Hiérarchies** pluriannuelles : projet (composante → sous-composante → indicateur ILD / hors ILD) et programme (domaine → sous-domaine avec indicateurs base/cible → composante → action). Activités et sous-activités rattachées, avec chronogramme, catégorie, UGP, source de financement, références DPPD, PPM.
+- **Budget** par activité et par exercice : lignes de coût (quantité × fréquence × durée × coût unitaire), modifiables par le point focal de la direction ou la coordination tant que l'exercice n'est pas clos.
+- **Import Excel** (Activités › Importer le PTBA, admin et coordination), format détecté automatiquement :
+  - **modèle SIGPRO** téléchargeable, généré avec les listes déroulantes à jour (directions, catégories, unités…) ; colonnes définies dans `config/ptba_import.php` ;
+  - **formats historiques** du projet Django : PTBA projet (lignes C, S/C, ILD, V, A, T) et PTBA programme (une feuille par sous-domaine, mois cochés « X »).
+  - Assistant : téléverser → contrôles ligne par ligne (erreurs bloquantes, avertissements, rapport CSV) → aperçu de l'arbre et des totaux → import en file d'attente, tout ou rien. Un réimport met à jour les activités existantes (code ou clé de rapprochement) et remplace leurs lignes budgétaires.
+  - Contrôle de cohérence : écart entre le détail lu et les totaux inscrits dans le fichier signalé niveau par niveau.
+- **Arborescence** du PTBA (Activités › Arborescence) avec montants cumulés, filtres direction et ILD.

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Activity extends Model
 {
@@ -19,8 +20,11 @@ class Activity extends Model
     use HasFactory;
 
     protected $fillable = [
-        'volet', 'code', 'label', 'description', 'exercice_id', 'direction_id', 'focal_user_id',
-        'starts_on', 'ends_on', 'execution_status',
+        'volet', 'code', 'import_key', 'label', 'description', 'exercice_id', 'direction_id', 'focal_user_id',
+        'parent_type', 'parent_id', 'parent_activity_id', 'starts_on', 'ends_on', 'execution_status',
+        'category_id', 'ugp_id', 'funding_source_id', 'activity_type', 'localisation', 'partner',
+        'procurement_method', 'ild_reference', 'ddp_programme', 'ddp_nature', 'ddp_action', 'ddp_activite',
+        'ddp_ligne', 'ppm_ref', 'schedule_months', 'position',
     ];
 
     protected function casts(): array
@@ -30,7 +34,78 @@ class Activity extends Model
             'execution_status' => ExecutionStatus::class,
             'starts_on' => 'date',
             'ends_on' => 'date',
+            'schedule_months' => 'array',
         ];
+    }
+
+    /** Indicateur (projet) ou action (programme) de rattachement. */
+    public function parent(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
+    public function parentActivity(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_activity_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_activity_id')->orderBy('position');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(ExpenseCategory::class);
+    }
+
+    public function ugp(): BelongsTo
+    {
+        return $this->belongsTo(Ugp::class);
+    }
+
+    public function fundingSource(): BelongsTo
+    {
+        return $this->belongsTo(FundingSource::class);
+    }
+
+    public function budgetLines(): HasMany
+    {
+        return $this->hasMany(BudgetLine::class)->orderBy('position')->orderBy('id');
+    }
+
+    /**
+     * Chemin dans le PTBA, du niveau le plus haut à l'indicateur ou à l'action.
+     *
+     * @return list<array{level: string, code: ?string, label: string}>
+     */
+    public function hierarchy(): array
+    {
+        $parent = $this->parent;
+
+        if ($parent instanceof ProjectIndicator) {
+            $sub = $parent->subcomponent;
+
+            return [
+                ['level' => 'Composante', 'code' => $sub->component->code, 'label' => $sub->component->label],
+                ['level' => 'Sous-composante', 'code' => $sub->sigle ?: $sub->code, 'label' => $sub->label],
+                ['level' => $parent->isIld() ? 'ILD' : 'Hors ILD', 'code' => $parent->code, 'label' => $parent->label],
+            ];
+        }
+
+        if ($parent instanceof ProgrammeAction) {
+            $component = $parent->component;
+            $subdomain = $component->subdomain;
+
+            return [
+                ['level' => 'Domaine', 'code' => $subdomain->domain->code, 'label' => $subdomain->domain->label],
+                ['level' => 'Sous-domaine', 'code' => $subdomain->code, 'label' => $subdomain->label],
+                ['level' => 'Composante', 'code' => $component->code, 'label' => $component->label],
+                ['level' => 'Action', 'code' => $parent->code, 'label' => $parent->label],
+            ];
+        }
+
+        return [];
     }
 
     public function exercice(): BelongsTo

@@ -25,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
         // L'administrateur a tous les droits, quelles que soient les policies.
         Gate::before(fn (User $user) => $user->hasRole(Role::Admin->value) ? true : null);
 
+        // Import du PTBA : administrateur (via before) et coordination.
+        Gate::define('import-ptba', fn (User $user) => $user->hasAppRole(Role::Coordination));
+
         Event::listen(Login::class, function (Login $event) {
             $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
         });
