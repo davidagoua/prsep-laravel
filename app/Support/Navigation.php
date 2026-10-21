@@ -38,7 +38,7 @@ class Navigation
                 'items' => [
                     self::item('Activités', 'rectangle-stack', $metier, route: 'activities.index', active: 'activities.*'),
                     self::item('Validations', 'check-badge', $valideurs, route: 'validations', badge: $toDecide),
-                    self::item('Suivi financier', 'banknotes', $pilotage, lot: 3),
+                    self::item('Suivi financier', 'banknotes', $pilotage, route: 'finance.index', active: 'finance.*'),
                     self::item('Rapports', 'document-text', $metier, lot: 4),
                     self::item('Carte', 'map', $metier, lot: 5),
                 ],

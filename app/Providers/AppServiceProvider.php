@@ -28,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
         // Import du PTBA : administrateur (via before) et coordination.
         Gate::define('import-ptba', fn (User $user) => $user->hasAppRole(Role::Coordination));
 
+        // Suivi financier : saisie par la coordination, consultation par les rôles transverses.
+        Gate::define('manage-finance', fn (User $user) => $user->hasAppRole(Role::Coordination));
+        Gate::define('view-finance', fn (User $user) => $user->seesAllDirections());
+
         Event::listen(Login::class, function (Login $event) {
             $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
         });

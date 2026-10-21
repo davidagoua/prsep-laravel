@@ -7,7 +7,6 @@ use App\Models\Activity;
 use App\Models\ProgrammeAction;
 use App\Models\ProjectIndicator;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
@@ -35,10 +34,14 @@ class PtbaTree
             ->when($volet === Volet::Projet && ($filters['ild'] ?? null), fn ($q) => $q->whereHasMorph('parent', [ProjectIndicator::class], fn ($q) => $q->where('type', $filters['ild'])))
             ->withSum(['budgetLines as planned' => fn ($q) => $q->where('exercice_id', $exerciceId)], 'amount')
             ->with(['direction:id,code', 'tdr.currentStep'])
-            ->when($withMetrics, fn (Builder $q) => $withMetrics($q, $exerciceId))
             ->orderBy('position')
-            ->orderBy('id')
-            ->get();
+            ->orderBy('id');
+
+        // Pas de when() : il exécuterait la fermeture passée comme condition.
+        if ($withMetrics) {
+            $withMetrics($activities, $exerciceId);
+        }
+        $activities = $activities->get();
 
         $metrics = $withMetrics ? ['planned', 'engaged', 'paid'] : self::METRICS;
         $leaves = $this->activityNodes($activities, $metrics);

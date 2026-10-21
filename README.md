@@ -71,3 +71,11 @@ php artisan test
   - Assistant : téléverser → contrôles ligne par ligne (erreurs bloquantes, avertissements, rapport CSV) → aperçu de l'arbre et des totaux → import en file d'attente, tout ou rien. Un réimport met à jour les activités existantes (code ou clé de rapprochement) et remplace leurs lignes budgétaires.
   - Contrôle de cohérence : écart entre le détail lu et les totaux inscrits dans le fichier signalé niveau par niveau.
 - **Arborescence** du PTBA (Activités › Arborescence) avec montants cumulés, filtres direction et ILD.
+
+## Lot 3 — suivi financier
+
+- **Engagements et paiements** par activité et par exercice, saisis par la coordination depuis la fiche activité ou le panneau latéral du suivi financier. Règles : pas de paiement au-delà du reste à payer (de l'activité et de l'engagement choisi), un engagement payé ne se supprime pas, alerte quand les engagements dépassent le budget planifié.
+- **DRF** (Suivi financier › DRF) : regroupement des paiements à faire rembourser, numérotation par exercice, cycle brouillon → soumise (paiements figés) → remboursée, ou rejet par le bailleur avec motif (la DRF redevient modifiable).
+- **Tableau financier** : arborescence du PTBA avec planifié, engagé, payé, reste à payer et taux d'exécution à chaque niveau, indicateurs clés, filtres volet / direction / ILD.
+- **Exports Excel** du tableau financier (mêmes filtres) et de chaque DRF.
+- Accès : saisie par la coordination (et l'administrateur), consultation par la direction exécutive et les lecteurs ; le point focal voit l'exécution financière de ses activités.

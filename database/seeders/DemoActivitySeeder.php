@@ -4,9 +4,12 @@ namespace Database\Seeders;
 
 use App\Enums\Role;
 use App\Enums\Volet;
+use App\Finance\FinanceService;
 use App\Models\Activity;
 use App\Models\Direction;
+use App\Models\Drf;
 use App\Models\Exercice;
+use App\Models\Payment;
 use App\Models\ProgrammeAction;
 use App\Models\ProgrammeComponent;
 use App\Models\ProjectComponent;
@@ -77,6 +80,30 @@ class DemoActivitySeeder extends Seeder
 
             return $activity;
         });
+
+        // Exécution financière : engagements, paiements et une DRF soumise.
+        $coordination = User::role(Role::Coordination->value)->first();
+        if ($coordination) {
+            $finance = app(FinanceService::class);
+            foreach ($activities->take(5) as $i => $activity) {
+                $planned = (int) $activity->budgetLines()->sum('amount');
+                $engagement = $finance->saveEngagement($activity, $coordination, [
+                    'amount' => (int) round($planned * [0.9, 0.6, 1.0, 0.4, 0.75][$i]),
+                    'engaged_on' => now()->subDays(40 - $i)->toDateString(),
+                    'reference' => 'BC-'.(100 + $i),
+                    'label' => 'Prestations logistiques',
+                ]);
+                $finance->savePayment($activity, $coordination, [
+                    'amount' => (int) round($engagement->amount * [0.5, 1.0, 0.3, 0.0001, 0.6][$i]),
+                    'paid_on' => now()->subDays(20 - $i)->toDateString(),
+                    'engagement_id' => $engagement->id,
+                    'reference' => 'MANDAT-'.(500 + $i),
+                ]);
+            }
+            $drf = $finance->createDrf($exercice, $coordination, Drf::nextNumber($exercice), now()->subDays(10)->toDateString(), 'Dépenses du trimestre');
+            $finance->attachPayments($drf, $coordination, Payment::orderBy('id')->limit(3)->pluck('id')->all());
+            $finance->submitDrf($drf, $coordination);
+        }
 
         // Quelques dossiers à différents stades, sans envoyer d'e-mails.
         Notification::fake();

@@ -89,6 +89,7 @@ new class extends Component {
         <div class="min-w-0 space-y-6">
             <livewire:tdr.panel :activity-id="$activity->id" :key="'tdr-'.$activity->id" />
             <livewire:activities.budget :activity-id="$activity->id" :key="'budget-'.$activity->id" />
+            <livewire:finance.activity :activity-id="$activity->id" :key="'finance-'.$activity->id" />
         </div>
 
         <aside class="space-y-4">
@@ -122,7 +123,7 @@ new class extends Component {
                 </flux:card>
             @endif
 
-            @foreach ([['Engagements et paiements', 'banknotes', 3], ['Localités d\'exécution', 'map-pin', 5], ['Rapports', 'document-chart-bar', 4]] as [$title, $icon, $lot])
+            @foreach ([['Localités d\'exécution', 'map-pin', 5], ['Rapports', 'document-chart-bar', 4]] as [$title, $icon, $lot])
                 <div class="flex items-center gap-3 rounded-lg border border-dashed border-zinc-300 px-4 py-3 text-sm text-zinc-500 dark:border-zinc-600 dark:text-zinc-400">
                     <flux:icon :icon="$icon" class="size-5" />
                     <span class="flex-1">{{ $title }}</span>

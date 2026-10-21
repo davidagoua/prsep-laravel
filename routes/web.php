@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FinanceExportController;
 use App\Http\Controllers\PtbaFileController;
 use App\Http\Controllers\SwitchExerciceController;
 use App\Http\Controllers\TdrDocumentController;
@@ -23,6 +24,13 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('ptba/import', 'ptba.import')->middleware('can:import-ptba')->name('ptba.import');
     Route::get('ptba/modele/{volet}', [PtbaFileController::class, 'template'])->name('ptba.template');
     Route::get('ptba/import/{import}/anomalies', [PtbaFileController::class, 'report'])->name('ptba.report');
+
+    Route::middleware('can:view-finance')->prefix('suivi-financier')->name('finance.')->group(function () {
+        Volt::route('/', 'finance.index')->name('index');
+        Volt::route('drf', 'finance.drf')->name('drf');
+        Route::get('export', [FinanceExportController::class, 'tree'])->name('export');
+        Route::get('drf/{drf}/export', [FinanceExportController::class, 'drf'])->name('drf.export');
+    });
 
     Route::redirect('settings', 'settings/profile');
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');

@@ -74,6 +74,26 @@ class Activity extends Model
         return $this->hasMany(BudgetLine::class)->orderBy('position')->orderBy('id');
     }
 
+    public function engagements(): HasMany
+    {
+        return $this->hasMany(Engagement::class)->orderByDesc('engaged_on');
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->orderByDesc('paid_on');
+    }
+
+    /**
+     * Ajoute les montants planifié, engagé et payé de l'exercice (colonnes planned, engaged, paid).
+     */
+    public function scopeWithFinancials(Builder $query, int $exerciceId): void
+    {
+        $query->withSum(['budgetLines as planned' => fn ($q) => $q->where('exercice_id', $exerciceId)], 'amount')
+            ->withSum(['engagements as engaged' => fn ($q) => $q->where('exercice_id', $exerciceId)], 'amount')
+            ->withSum(['payments as paid' => fn ($q) => $q->where('exercice_id', $exerciceId)], 'amount');
+    }
+
     /**
      * Chemin dans le PTBA, du niveau le plus haut à l'indicateur ou à l'action.
      *
