@@ -19,6 +19,7 @@ class Navigation
     {
         $urgent = app(Inbox::class)->urgentCount($user);
         $toDecide = Tdr::awaitingDecisionBy($user)->count();
+        $reportsBadge = app(Inbox::class)->reportsCount($user);
 
         $all = Role::cases();
         $metier = [Role::PointFocal, Role::DirecteurCentral, Role::Coordination, Role::DirecteurExecutif, Role::Lecteur, Role::Admin];
@@ -39,7 +40,7 @@ class Navigation
                     self::item('Activités', 'rectangle-stack', $metier, route: 'activities.index', active: 'activities.*'),
                     self::item('Validations', 'check-badge', $valideurs, route: 'validations', badge: $toDecide),
                     self::item('Suivi financier', 'banknotes', $pilotage, route: 'finance.index', active: 'finance.*'),
-                    self::item('Rapports', 'document-text', $metier, lot: 4),
+                    self::item('Rapports', 'document-text', $metier, route: 'reports.index', active: 'reports.*', badge: $reportsBadge),
                     self::item('Carte', 'map', $metier, lot: 5),
                 ],
             ],

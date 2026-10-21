@@ -32,6 +32,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('manage-finance', fn (User $user) => $user->hasAppRole(Role::Coordination));
         Gate::define('view-finance', fn (User $user) => $user->seesAllDirections());
 
+        // Rapportage : la coordination définit les rapports attendus et consolide.
+        Gate::define('manage-reports', fn (User $user) => $user->hasAppRole(Role::Coordination));
+
         Event::listen(Login::class, function (Login $event) {
             $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
         });

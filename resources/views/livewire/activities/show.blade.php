@@ -123,7 +123,7 @@ new class extends Component {
                 </flux:card>
             @endif
 
-            @foreach ([['Localités d\'exécution', 'map-pin', 5], ['Rapports', 'document-chart-bar', 4]] as [$title, $icon, $lot])
+            @foreach ([['Localités d\'exécution', 'map-pin', 5]] as [$title, $icon, $lot])
                 <div class="flex items-center gap-3 rounded-lg border border-dashed border-zinc-300 px-4 py-3 text-sm text-zinc-500 dark:border-zinc-600 dark:text-zinc-400">
                     <flux:icon :icon="$icon" class="size-5" />
                     <span class="flex-1">{{ $title }}</span>

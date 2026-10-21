@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\DocumentEditorController;
 use App\Http\Controllers\FinanceExportController;
 use App\Http\Controllers\PtbaFileController;
+use App\Http\Controllers\ReportDocumentController;
 use App\Http\Controllers\SwitchExerciceController;
 use App\Http\Controllers\TdrDocumentController;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +21,13 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('activites/{activity}', 'activities.show')->name('activities.show');
     Volt::route('validations', 'validations')->name('validations');
     Route::get('tdr/documents/{document}', TdrDocumentController::class)->name('tdr-documents.show');
+
+    Route::get('documents/{fileId}/editeur', DocumentEditorController::class)->name('documents.editor');
+
+    Volt::route('rapports', 'reports.index')->name('reports.index');
+    Volt::route('rapports/periode', 'reports.period')->name('reports.period');
+    Volt::route('rapports/{report}', 'reports.show')->name('reports.show');
+    Route::get('rapports/documents/{document}', ReportDocumentController::class)->name('report-documents.show');
 
     Volt::route('activites-arborescence', 'activities.tree')->name('activities.tree');
     Volt::route('ptba/import', 'ptba.import')->middleware('can:import-ptba')->name('ptba.import');

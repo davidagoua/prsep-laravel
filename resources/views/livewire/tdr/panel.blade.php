@@ -294,6 +294,8 @@ new class extends Component {
                             </div>
                             @if ($document->isPdf())
                                 <flux:button size="xs" variant="ghost" icon="eye" :href="route('tdr-documents.show', [$document, 'apercu' => 1])" target="_blank">Aperçu</flux:button>
+                            @elseif (in_array(strtolower(pathinfo($document->path, PATHINFO_EXTENSION)), ['docx', 'doc', 'odt'], true))
+                                <flux:button size="xs" variant="ghost" icon="eye" :href="route('documents.editor', \App\Collabora\WopiFile::idFor($document))" target="_blank">Lire en ligne</flux:button>
                             @endif
                             <flux:button size="xs" variant="ghost" icon="arrow-down-tray" :href="route('tdr-documents.show', $document)" aria-label="Télécharger" />
                         </li>

@@ -79,3 +79,11 @@ php artisan test
 - **Tableau financier** : arborescence du PTBA avec planifié, engagé, payé, reste à payer et taux d'exécution à chaque niveau, indicateurs clés, filtres volet / direction / ILD.
 - **Exports Excel** du tableau financier (mêmes filtres) et de chaque DRF.
 - Accès : saisie par la coordination (et l'administrateur), consultation par la direction exécutive et les lecteurs ; le point focal voit l'exécution financière de ses activités.
+
+## Lot 4 — rapports et édition en ligne
+
+- **Rapports attendus** (Rapports › Rapports attendus, coordination) : un par type (fiche mensuelle, trimestriel projet / programme, semestriel, annuel), période et direction, avec un délai de remise ; les périodes déjà terminées peuvent être ignorées.
+- **Directions** (point focal, directeur central) : liste « À remettre » avec échéances et retards, dépôt depuis la ligne, nouvelles versions, remise à la coordination, correction après renvoi. Rapports circonstanciés hors calendrier.
+- **Coordination** : calendrier par type (directions × périodes, état de chaque rapport), validation ou renvoi commenté, page de consolidation par période (remis / attendus, téléchargements), rapport consolidé publié à des rôles et directions choisis.
+- **Édition en ligne avec Collabora** : « Modifier en ligne » ouvre le document dans Collabora (écriture si l'utilisateur peut modifier le rapport, lecture sinon) ; les TDR Word se lisent en ligne. Hôte WOPI dans SIGPRO (`/wopi/files/...`) protégé par un jeton signé et limité dans le temps ; l'enregistrement met à jour la dernière version.
+- Notifications (base, e-mail, temps réel) et compteurs dans « À traiter » et le menu.

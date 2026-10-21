@@ -22,6 +22,33 @@
 
     <ul class="divide-y divide-zinc-100 dark:divide-zinc-700">
         @foreach ($items as $item)
+            @if ($item instanceof \App\Models\Report || $item instanceof \App\Models\ReportObligation)
+                {{-- Rapports --}}
+                @php
+                    $isReport = $item instanceof \App\Models\Report;
+                    $url = $isReport ? route('reports.show', $item) : route('reports.index', ['vue' => 'remettre']);
+                @endphp
+                <li class="flex flex-wrap items-center gap-3 px-4 py-3">
+                    <div class="min-w-0 flex-1">
+                        <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ $item->direction?->code }} · {{ $item->periode?->label }}</div>
+                        <div class="truncate font-medium">{{ $isReport ? $item->title : $item->type->label() }}</div>
+                        <div class="text-xs text-zinc-500 dark:text-zinc-400">
+                            @if ($section['key'] === 'report_decide')
+                                Remis {{ $item->submitted_at?->diffForHumans() }}
+                            @elseif ($section['key'] === 'report_fix')
+                                @if ($item->transitions->first()?->comment) « {{ \Illuminate\Support\Str::limit($item->transitions->first()->comment, 90) }} » @endif
+                            @else
+                                Échéance le {{ $item->due_on->translatedFormat('j F') }}
+                                @if ($item->due_on->lt(today())) <flux:badge size="sm" color="red" class="ms-1">En retard</flux:badge> @endif
+                            @endif
+                        </div>
+                    </div>
+                    <flux:button size="sm" :variant="$section['key'] === 'report_decide' ? 'primary' : 'filled'" :href="$url" wire:navigate>
+                        {{ ['report_decide' => 'Examiner', 'report_fix' => 'Corriger', 'report_due' => 'Déposer'][$section['key']] }}
+                    </flux:button>
+                </li>
+                @continue
+            @endif
             @php
                 $isTdr = $item instanceof \App\Models\Tdr;
                 $activity = $isTdr ? $item->activity : $item;

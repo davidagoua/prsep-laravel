@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ReportType;
 use App\Enums\Role;
 use App\Enums\Volet;
 use App\Finance\FinanceService;
@@ -18,7 +19,10 @@ use App\Models\ProjectSubcomponent;
 use App\Models\ResultDomain;
 use App\Models\ResultSubdomain;
 use App\Models\User;
+use App\Reporting\ObligationGenerator;
+use App\Reporting\ReportWorkflow;
 use App\Workflow\TdrWorkflow;
+use Database\Seeders\Support\DemoDocx;
 use Illuminate\Database\Seeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
@@ -103,6 +107,23 @@ class DemoActivitySeeder extends Seeder
             $drf = $finance->createDrf($exercice, $coordination, Drf::nextNumber($exercice), now()->subDays(10)->toDateString(), 'Dépenses du trimestre');
             $finance->attachPayments($drf, $coordination, Payment::orderBy('id')->limit(3)->pluck('id')->all());
             $finance->submitDrf($drf, $coordination);
+        }
+
+        // Rapports : attendus mensuels et trimestriels du projet pour DSPA et DAF, une fiche remise.
+        $directions = Direction::whereIn('code', ['DSPA', 'DAF'])->pluck('id')->all();
+        app(ObligationGenerator::class)->generate($exercice, [ReportType::MensuelProjet, ReportType::TrimestrielProjet], $directions, 10, today()->subMonthNoOverflow()->startOfMonth());
+        $lastMonth = $exercice->periodes()->where('type', 'mois')->whereDate('ends_on', '<', today())->reorder('number', 'desc')->first();
+        if ($lastMonth) {
+            Notification::fake();
+            $reports = app(ReportWorkflow::class);
+            $fiche = $reports->create($exercice, ReportType::MensuelProjet, $lastMonth, $focal->direction, false, $focal,
+                DemoDocx::make('Fiche mensuelle de suivi — '.$lastMonth->label, [
+                    'Direction : DSPA',
+                    'Activités réalisées : ateliers régionaux de formation (2 sur 4), production des guides de lecture.',
+                    'Difficultés : retard de décaissement pour la logistique des ateliers.',
+                    'Perspectives : finaliser les ateliers et lancer l\'enquête de suivi des acquis.',
+                ], 'fiche-mensuelle-dspa.docx'));
+            $reports->submit($fiche, $focal);
         }
 
         // Quelques dossiers à différents stades, sans envoyer d'e-mails.

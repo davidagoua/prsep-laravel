@@ -13,11 +13,12 @@ enum WorkflowAction: string
     case Abandoned = 'abandoned';
     case Started = 'started';
     case Closed = 'closed';
+    case Published = 'published';
 
     public function label(): string
     {
         return match ($this) {
-            self::Created => 'TDR déposé',
+            self::Created => 'Dépôt initial',
             self::NewVersion => 'Nouvelle version déposée',
             self::Submitted => 'Soumis pour validation',
             self::Resubmitted => 'Resoumis après correction',
@@ -26,6 +27,7 @@ enum WorkflowAction: string
             self::Abandoned => 'Abandonné',
             self::Started => 'Exécution démarrée',
             self::Closed => 'Activité clôturée',
+            self::Published => 'Publié',
         };
     }
 
@@ -39,13 +41,14 @@ enum WorkflowAction: string
             self::Abandoned => 'x-circle',
             self::Started => 'play',
             self::Closed => 'flag',
+            self::Published => 'megaphone',
         };
     }
 
     public function color(): string
     {
         return match ($this) {
-            self::Approved, self::Closed => 'text-prseb-green-600',
+            self::Approved, self::Closed, self::Published => 'text-prseb-green-600',
             self::ChangesRequested => 'text-prseb-orange-500',
             self::Abandoned => 'text-red-500',
             default => 'text-prseb-navy-600 dark:text-prseb-navy-300',
