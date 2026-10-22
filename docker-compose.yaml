@@ -25,6 +25,7 @@ x-php: &php
     REVERB_PORT: 8080
     REVERB_SCHEME: http
     COLLABORA_INTERNAL_URL: http://collabora:9980
+    GEOSERVER_INTERNAL_URL: http://geoserver:8080/geoserver
     MAIL_HOST: mailpit
     MAIL_PORT: 1025
   depends_on:
@@ -106,6 +107,24 @@ services:
     ports:
       - "${FORWARD_COLLABORA_PORT:-9980}:9980"
 
+  geoserver:
+    # Publication des couches cartographiques (DRENA, localités…) en WMS / WFS.
+    # Image multi-architecture (amd64 + arm64). Interface : http://localhost:8081/geoserver
+    image: kartoza/geoserver:2.26.1
+    environment:
+      GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER:-admin}
+      GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD:-geoserver}
+      SAMPLE_DATA: "false"
+      INITIAL_MEMORY: 512M
+      MAXIMUM_MEMORY: 2G
+    ports:
+      - "${FORWARD_GEOSERVER_PORT:-8081}:8080"
+    volumes:
+      - geoserver-data:/opt/geoserver/data_dir
+    depends_on:
+      postgis:
+        condition: service_healthy
+
   mailpit:
     image: axllent/mailpit:latest
     ports:
@@ -114,3 +133,4 @@ services:
 volumes:
   postgis-data:
   redis-data:
+  geoserver-data:

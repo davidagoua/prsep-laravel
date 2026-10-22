@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DocumentEditorController;
 use App\Http\Controllers\FinanceExportController;
+use App\Http\Controllers\MapFeatureInfoController;
 use App\Http\Controllers\PtbaFileController;
 use App\Http\Controllers\ReportDocumentController;
 use App\Http\Controllers\SwitchExerciceController;
@@ -23,6 +24,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('tdr/documents/{document}', TdrDocumentController::class)->name('tdr-documents.show');
 
     Route::get('documents/{fileId}/editeur', DocumentEditorController::class)->name('documents.editor');
+
+    Volt::route('carte', 'map')->name('map');
+    Route::get('carte/objets', MapFeatureInfoController::class)->middleware('throttle:60,1')->name('map.feature-info');
 
     Volt::route('rapports', 'reports.index')->name('reports.index');
     Volt::route('rapports/periode', 'reports.period')->name('reports.period');

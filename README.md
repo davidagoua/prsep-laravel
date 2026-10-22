@@ -23,6 +23,7 @@ docker compose exec app php artisan migrate --seed
 | Collabora Online | http://localhost:9980/hosting/discovery (console : `/browser/dist/admin/admin.html`) |
 | Reverb (WebSocket) | ws://localhost:8080 |
 | Mailpit (e-mails) | http://localhost:8025 |
+| GeoServer | http://localhost:8081/geoserver (admin / `GEOSERVER_ADMIN_PASSWORD`) |
 | PostgreSQL | `localhost:5433` (sigpro / secret) |
 | Redis | `localhost:6380` |
 
@@ -87,3 +88,11 @@ php artisan test
 - **Coordination** : calendrier par type (directions × périodes, état de chaque rapport), validation ou renvoi commenté, page de consolidation par période (remis / attendus, téléchargements), rapport consolidé publié à des rôles et directions choisis.
 - **Édition en ligne avec Collabora** : « Modifier en ligne » ouvre le document dans Collabora (écriture si l'utilisateur peut modifier le rapport, lecture sinon) ; les TDR Word se lisent en ligne. Hôte WOPI dans SIGPRO (`/wopi/files/...`) protégé par un jeton signé et limité dans le temps ; l'enregistrement met à jour la dernière version.
 - Notifications (base, e-mail, temps réel) et compteurs dans « À traiter » et le menu.
+
+## Lot 5 — carte
+
+- **GeoServer** dans `docker-compose.yaml` (image `kartoza/geoserver`, données persistées dans le volume `geoserver-data`). L'espace de travail `sigpro` et l'entrepôt `sigpro_postgis` (base PostGIS de SIGPRO) sont prêts à recevoir les couches.
+- **Page Carte** (Leaflet, chargé à la demande) : fonds OpenStreetMap et CARTO, couches WMS de GeoServer avec affichage / masquage, opacité, centrage sur l'emprise, plein écran, informations de l'objet cliqué.
+- Les couches sont **découvertes automatiquement** (WMS GetCapabilities de l'espace `GEOSERVER_WORKSPACE`) : une couche publiée dans GeoServer apparaît sur la carte sans modification de SIGPRO (bouton « Actualiser les couches », cache de 5 minutes).
+- L'interrogation des objets passe par SIGPRO (`/carte/objets`), limitée aux couches publiées : pas de CORS à configurer dans GeoServer.
+- À venir : rattachement des localités d'exécution aux activités et affichage des activités sur la carte, une fois les couches DRENA / localités chargées.

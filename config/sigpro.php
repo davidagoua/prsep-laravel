@@ -20,4 +20,12 @@ return [
         'wopi_host' => env('COLLABORA_WOPI_HOST', env('APP_URL', 'http://localhost')),
     ],
 
+    // GeoServer : adresse publique (tuiles WMS chargées par le navigateur) et adresse interne
+    // (découverte des couches, interrogation des objets). Seules les couches de l'espace de travail sont proposées.
+    'geoserver' => [
+        'url' => env('GEOSERVER_URL', 'http://localhost:8081/geoserver'),
+        'internal_url' => env('GEOSERVER_INTERNAL_URL', env('GEOSERVER_URL', 'http://localhost:8081/geoserver')),
+        'workspace' => env('GEOSERVER_WORKSPACE', 'sigpro'),
+    ],
+
 ];

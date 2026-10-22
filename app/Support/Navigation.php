@@ -41,7 +41,7 @@ class Navigation
                     self::item('Validations', 'check-badge', $valideurs, route: 'validations', badge: $toDecide),
                     self::item('Suivi financier', 'banknotes', $pilotage, route: 'finance.index', active: 'finance.*'),
                     self::item('Rapports', 'document-text', $metier, route: 'reports.index', active: 'reports.*', badge: $reportsBadge),
-                    self::item('Carte', 'map', $metier, lot: 5),
+                    self::item('Carte', 'map', $metier, route: 'map'),
                 ],
             ],
             [
