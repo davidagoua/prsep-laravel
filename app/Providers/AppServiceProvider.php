@@ -10,6 +10,7 @@ use App\Support\Navigation;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,6 +23,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if ($this->app->isProduction()) {
+            URL::forceHttps();
+        }
+
         // L'administrateur a tous les droits, quelles que soient les policies.
         Gate::before(fn (User $user) => $user->hasRole(Role::Admin->value) ? true : null);
 

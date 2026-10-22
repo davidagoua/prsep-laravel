@@ -1,0 +1,24 @@
+# Proxy HTTPS de production (certificats Let's Encrypt automatiques).
+{
+	email {$ACME_EMAIL}
+}
+
+{$APP_DOMAIN} {
+	encode zstd gzip
+	# WebSocket Reverb (temps réel).
+	@reverb path /app/* /apps/*
+	reverse_proxy @reverb reverb:8080
+	reverse_proxy app:8080
+	request_body {
+		max_size 55MB
+	}
+}
+
+{$COLLABORA_DOMAIN} {
+	reverse_proxy collabora:9980
+}
+
+{$GEOSERVER_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy geoserver:8080
+}

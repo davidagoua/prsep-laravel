@@ -178,7 +178,9 @@ new #[Title('Import du PTBA')] class extends Component {
     @endif
 
     @if ($import && $step === 2)
-        @php($summary = $import->summary)
+        @php
+            $summary = $import->summary;
+        @endphp
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <flux:card>
                 <flux:subheading>Fichier</flux:subheading>
@@ -225,7 +227,9 @@ new #[Title('Import du PTBA')] class extends Component {
                         <flux:radio value="warning" label="Avertissements" />
                     </flux:radio.group>
                 </div>
-                @php($issues = collect($import->issues)->when($issueFilter !== 'all', fn ($c) => $c->where('level', $issueFilter))->sortBy(fn ($i) => $i['level'] === 'error' ? 0 : 1)->values())
+                @php
+                    $issues = collect($import->issues)->when($issueFilter !== 'all', fn ($c) => $c->where('level', $issueFilter))->sortBy(fn ($i) => $i['level'] === 'error' ? 0 : 1)->values();
+                @endphp
                 @if ($issues->isEmpty())
                     <flux:text>Aucune anomalie.</flux:text>
                 @else
@@ -311,7 +315,9 @@ new #[Title('Import du PTBA')] class extends Component {
                     <flux:text size="sm" class="mt-1">{{ $import->progress }} % — vous pouvez quitter cette page, l'import continue.</flux:text>
                 </div>
             @elseif ($import->status === PtbaImport::DONE)
-                @php($result = $import->summary['result'] ?? [])
+                @php
+                    $result = $import->summary['result'] ?? [];
+                @endphp
                 <flux:callout color="green" icon="check-circle" heading="PTBA importé">
                     <flux:callout.text>
                         {{ $result['created'] ?? 0 }} activités créées, {{ $result['updated'] ?? 0 }} mises à jour, {{ $result['lines'] ?? 0 }} lignes de coût.

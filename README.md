@@ -104,3 +104,9 @@ php artisan test
 - **Incidents** au retour (panne sèche, crevaison, pièce retirée, accident, panne, autre) et **entretiens** (opérations reprises de Django, coût, garage, prochain entretien, remise en service).
 - **Alertes** : retours en retard et entretiens à prévoir (500 km ou 15 jours), dans l'écran du parc, « À traiter » et le badge du menu.
 - Accès : saisie par le gestionnaire du parc (et l'administrateur), consultation par la coordination et la direction exécutive.
+
+## Lot 7 — pilotage et mise en production
+
+- **Tableau de bord** (direction exécutive, coordination, lecteurs) : budget planifié, taux d'engagement et de décaissement, délai moyen de validation des TDR, points d'attention (TDR en attente depuis plus de 5 jours, activités démarrées sans TDR approuvé, rapports non remis, activités sans direction), exécution par composante ou domaine, TDR par état et par étape, rapports, parc, tableau par direction.
+- **Production** : image `docker/php/Dockerfile.prod` (nginx + PHP-FPM, migrations et caches au démarrage), `docker-compose.prod.yaml` avec Caddy (HTTPS automatique pour l'application, Collabora et GeoServer), `.env.production.example`, HTTPS forcé et proxies de confiance. Guide : [docs/deploiement.md](docs/deploiement.md).
+- **CI GitHub** : tests Pest (`php artisan test`) et contrôle du style (`pint --test`).

@@ -38,6 +38,7 @@ class Navigation
             [
                 'heading' => 'Pilotage',
                 'items' => [
+                    self::item('Tableau de bord', 'chart-bar', $pilotage, route: 'pilotage'),
                     self::item('Activités', 'rectangle-stack', $metier, route: 'activities.index', active: 'activities.*'),
                     self::item('Validations', 'check-badge', $valideurs, route: 'validations', badge: $toDecide),
                     self::item('Suivi financier', 'banknotes', $pilotage, route: 'finance.index', active: 'finance.*'),

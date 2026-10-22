@@ -96,3 +96,16 @@ select:focus[data-flux-control] {
     box-shadow: inset 3px 0 0 var(--color-prseb-orange-500);
     color: white;
 }
+
+/* Séries des graphiques (palette de référence validée, clair puis sombre). */
+:root {
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --chart-track: #ececea;
+}
+
+.dark {
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --chart-track: #383835;
+}

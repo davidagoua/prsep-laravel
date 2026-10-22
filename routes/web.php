@@ -18,6 +18,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('exercice', SwitchExerciceController::class)->name('exercice.switch');
 
     Volt::route('a-traiter', 'inbox')->name('inbox');
+    Volt::route('tableau-de-bord', 'pilotage')->middleware('can:view-finance')->name('pilotage');
     Volt::route('activites', 'activities.index')->name('activities.index');
     Volt::route('activites/{activity}', 'activities.show')->name('activities.show');
     Volt::route('validations', 'validations')->name('validations');

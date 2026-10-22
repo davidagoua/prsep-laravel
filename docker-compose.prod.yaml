@@ -1,0 +1,139 @@
+# Production : docker compose -f docker-compose.prod.yaml --env-file .env up -d
+# Voir docs/deploiement.md.
+name: sigpro-prod
+
+x-app: &app
+  image: ${SIGPRO_IMAGE:-sigpro/app:prod}
+  env_file: .env
+  restart: unless-stopped
+  volumes:
+    - app-storage:/var/www/html/storage/app
+  depends_on:
+    postgis:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  app:
+    <<: *app
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile.prod
+      args:
+        VITE_REVERB_APP_KEY: ${REVERB_APP_KEY}
+        VITE_REVERB_HOST: ${APP_DOMAIN}
+        VITE_REVERB_PORT: 443
+        VITE_REVERB_SCHEME: https
+
+  queue:
+    <<: *app
+    command: ["php", "/var/www/html/artisan", "queue:work", "--tries=3", "--timeout=300", "--max-time=3600"]
+    environment:
+      AUTORUN_ENABLED: "false"
+    healthcheck:
+      test: ["CMD", "healthcheck-queue"]
+      start_period: 10s
+
+  reverb:
+    <<: *app
+    command: ["php", "/var/www/html/artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    environment:
+      AUTORUN_ENABLED: "false"
+    healthcheck:
+      test: ["CMD", "healthcheck-reverb"]
+      start_period: 10s
+
+  postgis:
+    image: imresamu/postgis:16-3.5
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgis-data:/var/lib/postgresql/data
+      - ./docker/postgis/init.sql:/docker-entrypoint-initdb.d/10-init.sql:ro
+      - ./backups:/backups
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  collabora:
+    image: collabora/code:latest
+    restart: unless-stopped
+    cap_add:
+      - MKNOD
+    environment:
+      # Collabora appelle SIGPRO par le réseau interne pour lire et enregistrer les documents.
+      aliasgroup1: http://app:8080
+      server_name: ${COLLABORA_DOMAIN}
+      username: ${COLLABORA_ADMIN_USER}
+      password: ${COLLABORA_ADMIN_PASSWORD}
+      dictionaries: fr_FR en_US
+      extra_params: >-
+        --o:ssl.enable=false
+        --o:ssl.termination=true
+        --o:net.frame_ancestors=${APP_DOMAIN}
+
+  geoserver:
+    image: kartoza/geoserver:2.26.1
+    restart: unless-stopped
+    environment:
+      GEOSERVER_ADMIN_USER: ${GEOSERVER_ADMIN_USER}
+      GEOSERVER_ADMIN_PASSWORD: ${GEOSERVER_ADMIN_PASSWORD}
+      SAMPLE_DATA: "false"
+      INITIAL_MEMORY: 1G
+      MAXIMUM_MEMORY: 4G
+      HTTP_PROXY_NAME: ${GEOSERVER_DOMAIN}
+      HTTP_PROXY_PORT: 443
+      HTTP_SCHEME: https
+    volumes:
+      - geoserver-data:/opt/geoserver/data_dir
+    depends_on:
+      postgis:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      COLLABORA_DOMAIN: ${COLLABORA_DOMAIN}
+      GEOSERVER_DOMAIN: ${GEOSERVER_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+      - reverb
+      - collabora
+      - geoserver
+
+volumes:
+  app-storage:
+  postgis-data:
+  redis-data:
+  geoserver-data:
+  caddy-data:
+  caddy-config:
