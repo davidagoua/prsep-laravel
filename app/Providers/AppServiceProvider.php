@@ -35,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
         // Rapportage : la coordination définit les rapports attendus et consolide.
         Gate::define('manage-reports', fn (User $user) => $user->hasAppRole(Role::Coordination));
 
+        // Parc automobile : gestionnaire du parc (et administrateur).
+        Gate::define('manage-fleet', fn (User $user) => $user->hasAppRole(Role::GestionnaireParc));
+        Gate::define('view-fleet', fn (User $user) => $user->hasAppRole(Role::GestionnaireParc, Role::Coordination, Role::DirecteurExecutif));
+
         Event::listen(Login::class, function (Login $event) {
             $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
         });

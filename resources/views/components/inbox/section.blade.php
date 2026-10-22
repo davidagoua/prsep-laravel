@@ -22,6 +22,22 @@
 
     <ul class="divide-y divide-zinc-100 dark:divide-zinc-700">
         @foreach ($items as $item)
+            @if ($item instanceof \App\Models\Fleet\Vehicle || $item instanceof \App\Models\Fleet\VehicleTrip)
+                {{-- Parc automobile --}}
+                @php
+                    $vehicle = $item instanceof \App\Models\Fleet\Vehicle ? $item : $item->vehicle;
+                @endphp
+                <li class="flex flex-wrap items-center gap-3 px-4 py-3">
+                    <div class="min-w-0 flex-1">
+                        <div class="font-mono font-medium">{{ $vehicle->plate }} <span class="font-sans text-xs font-normal text-zinc-500">{{ $vehicle->name() }}</span></div>
+                        <div class="text-xs text-zinc-500 dark:text-zinc-400">
+                            {{ $item instanceof \App\Models\Fleet\VehicleTrip ? $item->driver_name.', retour prévu '.$item->expected_return_at->diffForHumans() : $vehicle->serviceAlert() }}
+                        </div>
+                    </div>
+                    <flux:button size="sm" :href="route('fleet.vehicle', $vehicle)" wire:navigate>Ouvrir</flux:button>
+                </li>
+                @continue
+            @endif
             @if ($item instanceof \App\Models\Report || $item instanceof \App\Models\ReportObligation)
                 {{-- Rapports --}}
                 @php

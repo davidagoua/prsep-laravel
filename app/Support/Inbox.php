@@ -6,6 +6,8 @@ use App\Enums\ReportState;
 use App\Enums\Role;
 use App\Enums\TdrState;
 use App\Models\Activity;
+use App\Models\Fleet\Vehicle;
+use App\Models\Fleet\VehicleTrip;
 use App\Models\Report;
 use App\Models\ReportObligation;
 use App\Models\Tdr;
@@ -58,6 +60,11 @@ class Inbox
             $sections[] = $this->section('report_due', 'Rapports à remettre', 'Échéance dépassée ou dans les 15 prochains jours.', 'zinc', $this->dueObligations($user));
         }
 
+        if ($user->hasAppRole(Role::GestionnaireParc)) {
+            $sections[] = $this->section('fleet_overdue', 'Retours de véhicules en retard', 'Sorties dont le retour prévu est dépassé.', 'orange', VehicleTrip::overdue()->with('vehicle')->orderBy('expected_return_at')->get());
+            $sections[] = $this->section('fleet_service', 'Entretiens à prévoir', 'Kilométrage ou date du prochain entretien proche ou dépassé.', 'zinc', Vehicle::serviceDue()->orderBy('plate')->get());
+        }
+
         return array_values(array_filter($sections, fn ($s) => $s['items']->isNotEmpty()));
     }
 
@@ -72,7 +79,15 @@ class Inbox
                 ->count();
         }
 
-        return $count + $this->reportsCount($user);
+        return $count + $this->reportsCount($user) + $this->fleetCount($user);
+    }
+
+    /** Parc : retours en retard et entretiens dus, pour le gestionnaire du parc. */
+    public function fleetCount(User $user): int
+    {
+        return $user->hasAppRole(Role::GestionnaireParc)
+            ? VehicleTrip::overdue()->count() + Vehicle::serviceDue()->count()
+            : 0;
     }
 
     /** Rapports demandant une action : à valider (coordination), à corriger ou en retard (direction). */

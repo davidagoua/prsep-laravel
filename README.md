@@ -96,3 +96,11 @@ php artisan test
 - Les couches sont **découvertes automatiquement** (WMS GetCapabilities de l'espace `GEOSERVER_WORKSPACE`) : une couche publiée dans GeoServer apparaît sur la carte sans modification de SIGPRO (bouton « Actualiser les couches », cache de 5 minutes).
 - L'interrogation des objets passe par SIGPRO (`/carte/objets`), limitée aux couches publiées : pas de CORS à configurer dans GeoServer.
 - À venir : rattachement des localités d'exécution aux activités et affichage des activités sur la carte, une fois les couches DRENA / localités chargées.
+
+## Lot 6 — parc automobile
+
+- **Véhicules** (Parc automobile) : immatriculation, marque, modèle, châssis, kilométrage, statut (disponible, en sortie, en entretien, hors service), prochain entretien au kilométrage ou à la date.
+- **Sorties** (mission, course, déplacement) : responsable, chauffeur, direction, destination, retour prévu. Le véhicule passe « en sortie », puis redevient disponible au retour ; s'il est immobilisé, il passe « en entretien ». Le kilométrage ne peut jamais reculer.
+- **Incidents** au retour (panne sèche, crevaison, pièce retirée, accident, panne, autre) et **entretiens** (opérations reprises de Django, coût, garage, prochain entretien, remise en service).
+- **Alertes** : retours en retard et entretiens à prévoir (500 km ou 15 jours), dans l'écran du parc, « À traiter » et le badge du menu.
+- Accès : saisie par le gestionnaire du parc (et l'administrateur), consultation par la coordination et la direction exécutive.

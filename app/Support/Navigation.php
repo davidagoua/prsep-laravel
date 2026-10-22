@@ -20,6 +20,7 @@ class Navigation
         $urgent = app(Inbox::class)->urgentCount($user);
         $toDecide = Tdr::awaitingDecisionBy($user)->count();
         $reportsBadge = app(Inbox::class)->reportsCount($user);
+        $fleetBadge = app(Inbox::class)->fleetCount($user);
 
         $all = Role::cases();
         $metier = [Role::PointFocal, Role::DirecteurCentral, Role::Coordination, Role::DirecteurExecutif, Role::Lecteur, Role::Admin];
@@ -47,7 +48,7 @@ class Navigation
             [
                 'heading' => 'Logistique',
                 'items' => [
-                    self::item('Parc automobile', 'truck', [Role::GestionnaireParc, Role::Admin], lot: 6),
+                    self::item('Parc automobile', 'truck', [Role::GestionnaireParc, Role::Coordination, Role::DirecteurExecutif, Role::Admin], route: 'fleet.index', active: 'fleet.*', badge: $fleetBadge),
                 ],
             ],
             [

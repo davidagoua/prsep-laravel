@@ -26,6 +26,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('documents/{fileId}/editeur', DocumentEditorController::class)->name('documents.editor');
 
     Volt::route('carte', 'map')->name('map');
+
+    Route::middleware('can:view-fleet')->prefix('parc')->name('fleet.')->group(function () {
+        Volt::route('/', 'fleet.index')->name('index');
+        Volt::route('sorties', 'fleet.trips')->name('trips');
+        Volt::route('vehicules/{vehicle}', 'fleet.vehicle')->name('vehicle');
+    });
     Route::get('carte/objets', MapFeatureInfoController::class)->middleware('throttle:60,1')->name('map.feature-info');
 
     Volt::route('rapports', 'reports.index')->name('reports.index');
